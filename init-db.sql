@@ -3,6 +3,17 @@
 
 USE soa;
 
+-- Crear la tabla 'usuarios' si no existe (compatible con la entidad `Usuario`)
+CREATE TABLE IF NOT EXISTS usuarios (
+	id BIGINT AUTO_INCREMENT PRIMARY KEY,
+	username VARCHAR(50) NOT NULL UNIQUE,
+	password VARCHAR(255) NOT NULL,
+	email VARCHAR(100) NOT NULL UNIQUE,
+	nombre VARCHAR(100) NOT NULL,
+	rol VARCHAR(10) NOT NULL DEFAULT 'USER',
+	activo BOOLEAN DEFAULT TRUE
+);
+
 -- Crear usuario administrador por defecto (password: admin123)
 -- El password está encriptado con BCrypt
 INSERT INTO usuarios (username, password, email, nombre, rol, activo) 
