@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Alumnos</title>
+    <script src="app.js"></script>
+</head>
+<body>
+
+<main>
+
+    <section>
+        <div>
+            <h2> Lista de alumnos</h2>
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Cedula</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Direccion</th>
+                <th>Telefono</th>
+            </tr>
+            </thead>
+            <tbody id="tbody">
+        </table>
+
+    </section>
+    
+    <section>
+        <div>
+            <h2> Agregar alumno</h2>
+            <form id="formulario" onsubmit="CrearAlumno()">
+                <div>
+                    <label>Cedula: <input name="cedula" required> </label>
+                    <label>Nombre: <input name="nombre" required> </label>
+                    <label>Apellido: <input name="apellido" required> </label>
+                    <label>direccion: <input name="direccion" required> </label>
+                    <label>Telefono: <input name="telefono" required> </label>
+                </div>
+                <button>Guardar</button>
+            </form>
+        </div>
+    </section>
+
+</main>
+
+</body>
+</html>

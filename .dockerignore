@@ -1,0 +1,39 @@
+# Archivos de compilación
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.vscode/
+*.code-workspace
+
+# Logs
+logs/
+*.log
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Docker
+.docker/
+
+# Archivos temporales
+*.tmp
+*.swp
+*~
+
+# Variables de entorno
+.env
+.env.local
+
+# Dependencias
+node_modules/
