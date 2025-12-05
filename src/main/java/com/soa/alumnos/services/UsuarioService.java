@@ -53,7 +53,7 @@ public class UsuarioService implements UserDetailsService {
                 .password(passwordEncoder.encode(dto.password()))
                 .email(dto.email())
                 .nombre(dto.nombre())
-                .rol(Usuario.Rol.USER)
+                .rol(Usuario.Rol.SECRETARIA)
                 .activo(true)
                 .build();
 

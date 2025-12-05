@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
 	password VARCHAR(255) NOT NULL,
 	email VARCHAR(100) NOT NULL UNIQUE,
 	nombre VARCHAR(100) NOT NULL,
-	rol VARCHAR(10) NOT NULL DEFAULT 'USER',
+	rol VARCHAR(20) NOT NULL DEFAULT 'SECRETARIA',
 	activo BOOLEAN DEFAULT TRUE
 );
 
@@ -20,5 +20,11 @@ INSERT INTO usuarios (username, password, email, nombre, rol, activo)
 VALUES ('admin', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH', 'admin@sistema.com', 'Administrador', 'ADMIN', true)
 ON DUPLICATE KEY UPDATE username=username;
 
--- Nota: La contraseña 'admin123' está encriptada con BCrypt
+-- Crear usuario secretaria de ejemplo (password: secretaria123)
+INSERT INTO usuarios (username, password, email, nombre, rol, activo) 
+VALUES ('secretaria', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iAt6Z5EH', 'secretaria@sistema.com', 'Secretaria', 'SECRETARIA', true)
+ON DUPLICATE KEY UPDATE username=username;
+
+-- Nota: Las contraseñas están encriptadas con BCrypt
+-- admin123 para admin, secretaria usa la misma contraseña de ejemplo
 -- Para generar nuevos hashes, puedes usar: https://bcrypt-generator.com/

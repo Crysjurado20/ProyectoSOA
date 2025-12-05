@@ -33,13 +33,13 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     @Column(name = "rol", nullable = false)
     @Builder.Default
-    private Rol rol = Rol.USER;
+    private Rol rol = Rol.SECRETARIA;
 
     @Column(name = "activo")
     @Builder.Default
     private Boolean activo = true;
 
     public enum Rol {
-        USER, ADMIN
+        ADMIN, SECRETARIA
     }
 }

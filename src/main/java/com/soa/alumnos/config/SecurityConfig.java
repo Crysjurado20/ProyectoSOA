@@ -48,6 +48,12 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/login", "/registro", "/css/**", "/js/**", "/api/auth/**").permitAll()
+                        // Solo ADMIN puede acceder a cursos
+                        .requestMatchers("/cursos/**", "/api/cursos/**").hasRole("ADMIN")
+                        // ADMIN y SECRETARIA pueden acceder a alumnos
+                        .requestMatchers("/alumnos/**", "/api/alumnos/**").hasAnyRole("ADMIN", "SECRETARIA")
+                        // Dashboard accesible para ambos roles
+                        .requestMatchers("/dashboard").hasAnyRole("ADMIN", "SECRETARIA")
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated())
                 .formLogin(form -> form

@@ -78,7 +78,7 @@
                     <a class="nav-link active" th:href="@{/alumnos}">
                         <i class="fas fa-users"></i> Alumnos
                     </a>
-                    <a class="nav-link" th:href="@{/cursos}">
+                    <a class="nav-link" th:href="@{/cursos}" sec:authorize="hasRole('ADMIN')">
                         <i class="fas fa-book"></i> Cursos
                     </a>
                     <hr class="text-white">
