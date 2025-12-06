@@ -387,52 +387,50 @@
     </div>
 
     <!-- Modal Asignar Alumnos -->
-    <div class="modal fade" id="modalAsignar" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Asignar Alumnos a: <span id="asignarCursoNombre" style="font-weight: bold;"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-4">
-                        <h6 style="font-size: 14px; color: #666; margin-bottom: 12px;">Alumnos Disponibles (sin curso asignado)</h6>
-                        <div th:if="${#lists.isEmpty(alumnosDisponibles)}" class="text-center py-4" style="color: #999;">
-                            No hay alumnos disponibles para asignar
+        <div class="modal fade" id="modalAsignar" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Asignar Alumnos a: <span id="asignarCursoNombre" style="font-weight: bold;"></span></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-4">
+                            <h6 style="font-size: 14px; color: #666; margin-bottom: 12px;">Alumnos Disponibles (sin curso asignado)</h6>
+                            <div id="alertNoAlumnos" class="alert alert-warning text-center" style="display:none;">No hay alumnos disponibles para asignar</div>
+                            <form th:if="${!#lists.isEmpty(alumnosDisponibles)}" id="formAsignar" method="post">
+                                <div class="table-container" style="max-height: 300px; overflow-y: auto;">
+                                    <table class="table" style="margin: 0;">
+                                        <thead style="position: sticky; top: 0; background: #fafafa;">
+                                            <tr>
+                                                <th style="width: 50px;"></th>
+                                                <th>Cédula</th>
+                                                <th>Nombre</th>
+                                                <th>Apellido</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="alumno : ${alumnosDisponibles}">
+                                                <td>
+                                                    <input type="radio" name="cedula" th:value="${alumno.cedula}" class="form-check-input" required>
+                                                </td>
+                                                <td th:text="${alumno.cedula}"></td>
+                                                <td th:text="${alumno.nombre}"></td>
+                                                <td th:text="${alumno.apellido}"></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                                    <button type="submit" class="btn-submit">Asignar</button>
+                                </div>
+                            </form>
                         </div>
-                        <form th:if="${!#lists.isEmpty(alumnosDisponibles)}" id="formAsignar" method="post">
-                            <div class="table-container" style="max-height: 300px; overflow-y: auto;">
-                                <table class="table" style="margin: 0;">
-                                    <thead style="position: sticky; top: 0; background: #fafafa;">
-                                        <tr>
-                                            <th style="width: 50px;"></th>
-                                            <th>Cédula</th>
-                                            <th>Nombre</th>
-                                            <th>Apellido</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr th:each="alumno : ${alumnosDisponibles}">
-                                            <td>
-                                                <input type="radio" name="cedula" th:value="${alumno.cedula}" class="form-check-input" required>
-                                            </td>
-                                            <td th:text="${alumno.cedula}"></td>
-                                            <td th:text="${alumno.nombre}"></td>
-                                            <td th:text="${alumno.apellido}"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
-                                <button type="submit" class="btn-submit">Asignar</button>
-                            </div>
-                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
     <div class="modal fade" id="modalVerAlumnos" tabindex="-1">
         <div class="modal-dialog modal-lg">
@@ -559,11 +557,19 @@
         function abrirModalAsignar(btn) {
             const id = btn.dataset.id;
             const nombre = btn.dataset.nombre;
-            
             document.getElementById('asignarCursoNombre').textContent = nombre;
-            document.getElementById('formAsignar').action = '/cursos/' + id + '/asignar-alumno';
-            
-            new bootstrap.Modal(document.getElementById('modalAsignar')).show();
+            const formAsignar = document.getElementById('formAsignar');
+            const alertNoAlumnos = document.getElementById('alertNoAlumnos');
+            if (formAsignar) {
+                if (alertNoAlumnos) alertNoAlumnos.style.display = 'none';
+                formAsignar.action = '/cursos/' + id + '/asignar-alumno';
+                new bootstrap.Modal(document.getElementById('modalAsignar')).show();
+            } else {
+                if (alertNoAlumnos) {
+                    alertNoAlumnos.style.display = 'block';
+                    new bootstrap.Modal(document.getElementById('modalAsignar')).show();
+                }
+            }
         }
     </script>
 </body>
