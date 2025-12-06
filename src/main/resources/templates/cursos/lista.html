@@ -392,6 +392,13 @@
                             No hay cursos registrados
                         </td>
                     </tr>
+                    <tr id="filaNoCoincidencias" style="display: none;">
+                        <td colspan="6" style="text-align: center; color: #666; padding: 30px; background-color: #fff;">
+                            <i class="bi bi-search"
+                                style="font-size: 20px; display: block; margin-bottom: 10px; color: #ccc;"></i>
+                            No se encontraron coincidencias para tu búsqueda.
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
@@ -687,19 +694,43 @@
         // Buscador por nombre de curso
         document.addEventListener('DOMContentLoaded', function () {
             const buscador = document.getElementById('buscadorCursoNombre');
-            const tabla = document.querySelector('.table tbody');
+            // Seleccionamos solo las filas que NO sean mensajes de sistema
+            const tablaBody = document.querySelector('.table tbody');
+            const mensajeNoResultados = document.getElementById('filaNoCoincidencias');
+
             buscador.addEventListener('input', function () {
                 const filtro = buscador.value.trim().toLowerCase();
-                tabla.querySelectorAll('tr').forEach(function (row) {
+                let cursosVisibles = 0;
+
+                // Seleccionamos todas las filas TR directas del body, excepto la de "No coincidencias"
+                // y excepto la fila de "No hay cursos registrados" (si existiera)
+                const filas = Array.from(tablaBody.querySelectorAll('tr')).filter(row =>
+                    row.id !== 'filaNoCoincidencias' && !row.innerText.includes('No hay cursos registrados')
+                );
+
+                filas.forEach(function (row) {
+                    // La columna nombre es la índice 2 (0=ID, 1=Codigo, 2=Nombre)
                     const nombreCell = row.querySelectorAll('td')[2];
-                    if (!nombreCell) return;
-                    const nombre = nombreCell.textContent.trim().toLowerCase();
-                    if (filtro === '' || nombre.includes(filtro)) {
-                        row.style.display = '';
-                    } else {
-                        row.style.display = 'none';
+
+                    if (nombreCell) {
+                        const nombre = nombreCell.textContent.trim().toLowerCase();
+
+                        if (filtro === '' || nombre.includes(filtro)) {
+                            row.style.display = '';
+                            cursosVisibles++;
+                        } else {
+                            row.style.display = 'none';
+                        }
                     }
                 });
+
+                // Lógica para mostrar/ocultar el mensaje
+                // Solo mostramos el mensaje si filtramos algo (filas.length > 0) y nada coincidió
+                if (cursosVisibles === 0 && filas.length > 0) {
+                    mensajeNoResultados.style.display = '';
+                } else {
+                    mensajeNoResultados.style.display = 'none';
+                }
             });
         });
     </script>
