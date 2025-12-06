@@ -85,14 +85,17 @@ public class WebController {
 
     @PostMapping("/alumnos/nuevo")
     public String guardarAlumno(@Valid @ModelAttribute("alumno") AlumnoCreateDto dto,
-            BindingResult result,
-            @RequestParam(required = false) Long cursoId,
-            RedirectAttributes redirectAttributes,
-            Model model) {
+                                BindingResult result,
+                                @RequestParam(required = false) Long cursoId,
+                                RedirectAttributes redirectAttributes,
+                                Model model) {
+
+        // 1. Si ya hay errores de validación estándar (ej: campo vacío), regresamos a la vista
         if (result.hasErrors()) {
             model.addAttribute("cursos", cursoService.listar());
             return "alumnos/formulario";
         }
+
         try {
             alumnoService.crear(dto);
             if (cursoId != null) {
@@ -100,8 +103,21 @@ public class WebController {
             }
             redirectAttributes.addFlashAttribute("mensaje", "Alumno creado exitosamente");
             return "redirect:/alumnos";
+
+        } catch (IllegalArgumentException e) { // Asumo que tu servicio lanza IllegalArgumentException para duplicados
+            // 2. AQUÍ ESTÁ EL CAMBIO CLAVE:
+            // En lugar de redirect, inyectamos el error manualmente al campo "cedula"
+            // arg0: nombre del campo, arg1: código de error (opcional), arg2: mensaje de la excepción
+            result.rejectValue("cedula", "error.alumno", e.getMessage());
+
+            // 3. Recargamos los datos necesarios para la vista (combos, listas, etc.)
+            model.addAttribute("cursos", cursoService.listar());
+
+            // 4. Retornamos la VISTA (el html), NO un redirect
+            return "alumnos/formulario";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
+            // Para otros errores no controlados, mantenemos el comportamiento anterior
+            redirectAttributes.addFlashAttribute("error", "Error inesperado: " + e.getMessage());
             return "redirect:/alumnos/nuevo";
         }
     }

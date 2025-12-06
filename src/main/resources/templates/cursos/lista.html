@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cursos</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -200,6 +201,15 @@
             font-size: 14px;
             color: #111;
         }
+        .descripcion-limitada {
+            display: -webkit-box;           /* Necesario para el efecto */
+            -webkit-line-clamp: 2;          /* Número máximo de líneas */
+            -webkit-box-orient: vertical;   /* Orientación vertical */
+            overflow: hidden;               /* Oculta el resto del texto */
+            text-overflow: ellipsis;        /* Añade los puntos suspensivos (...) */
+            max-width: 600px;               /* (Opcional) Evita que la columna sea eterna */
+            white-space: normal;            /* Permite que el texto salte de línea */
+        }
     </style>
 </head>
 
@@ -218,7 +228,7 @@
     <div class="main-content">
         <div class="page-header">
             <h1 class="page-title">Cursos</h1>
-            <button class="btn-new" data-bs-toggle="modal" data-bs-target="#modalNuevo">+ Nuevo Curso</button>
+            <button class="btn-new" data-bs-toggle="modal" data-bs-target="#modalNuevo">Nuevo Curso <i class="bi bi-plus-circle" style="padding-left: 5px;"></i></button>
         </div>
 
         <div th:if="${mensaje}" class="alert alert-success">
@@ -245,30 +255,34 @@
                         <td th:text="${curso.id}"></td>
                         <td><span class="badge badge-info" th:text="${curso.codigo}"></span></td>
                         <td th:text="${curso.nombre}"></td>
-                        <td th:text="${curso.descripcion ?: 'Sin descripción'}"></td>
+                        <td>
+                            <div class="descripcion-limitada"
+                                 th:text="${curso.descripcion ?: 'Sin descripción'}"
+                                 th:title="${curso.descripcion}">
+                            </div>
+                        </td>
                         <td><span class="badge badge-primary" th:text="${curso.totalAlumnos}"></span></td>
                         <td>
-                            <button class="btn-icon" title="Ver"
-                                    th:data-id="${curso.id}"
-                                    th:data-codigo="${curso.codigo}"
-                                    th:data-nombre="${curso.nombre}"
-                                    th:data-descripcion="${curso.descripcion ?: 'Sin descripción'}"
-                                    th:data-alumnos="${curso.totalAlumnos}"
-                                    onclick="abrirModalVer(this)">👁</button>
                             <button class="btn-icon" title="Editar"
                                     th:data-id="${curso.id}"
                                     th:data-codigo="${curso.codigo}"
                                     th:data-nombre="${curso.nombre}"
                                     th:data-descripcion="${curso.descripcion}"
-                                    onclick="abrirModalEditar(this)">✏️</button>
+                                    onclick="abrirModalEditar(this)"><i class="bi bi-pencil-square"></i></button>
                             <button class="btn-icon danger" title="Eliminar"
                                     th:data-id="${curso.id}"
                                     th:data-nombre="${curso.nombre}"
-                                    onclick="abrirModalEliminar(this)">🗑</button>
+                                    onclick="abrirModalEliminar(this)"><i class="bi bi-trash-fill"></i></button>
+                            <button class="btn-icon" title="Mostrar Alumnos"
+                                    th:data-id="${curso.id}"
+                                    th:data-codigo="${curso.codigo}"
+                                    th:data-nombre="${curso.nombre}"
+                                    th:data-descripcion="${curso.descripcion}"
+                                    onclick="abrirModalMostrarAlumnos(this)"><i class="bi bi-people-fill"></i></button>
                             <button class="btn-icon" title="Asignar Alumnos"
                                     th:data-id="${curso.id}"
                                     th:data-nombre="${curso.nombre}"
-                                    onclick="abrirModalAsignar(this)" style="color: #166534;">👥</button>
+                                    onclick="abrirModalAsignar(this)" style="color: #166534;"><i class="bi bi-person-fill-add"></i></button>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(cursos)}">
@@ -293,15 +307,15 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Código *</label>
-                            <input type="text" class="form-control" name="codigo" required maxlength="10" placeholder="Ej: MAT101">
+                            <input type="text" class="form-control" name="codigo" required maxlength="4" placeholder="Ej: B01">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Nombre *</label>
-                            <input type="text" class="form-control" name="nombre" required maxlength="100">
+                            <input type="text" class="form-control" name="nombre" required maxlength="40">
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Descripción</label>
-                            <textarea class="form-control" name="descripcion" rows="3" maxlength="255"></textarea>
+                            <textarea class="form-control" name="descripcion" rows="3" maxlength="180"></textarea>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -349,17 +363,22 @@
     <div class="modal fade" id="modalEliminar" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header" style="border-bottom: none;">
+                <div class="modal-header">
                     <h5 class="modal-title">Confirmar Eliminación</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body text-center py-4">
-                    <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
-                    <p style="font-size: 16px; color: #333; margin-bottom: 8px;">¿Está seguro de eliminar el curso?</p>
-                    <p style="font-size: 18px; font-weight: 600; color: #111;" id="eliminarNombre"></p>
-                    <p style="font-size: 14px; color: #666; margin-top: 12px;">Los alumnos asignados quedarán sin curso</p>
+                    <div class="mx-auto d-flex align-items-center justify-content-center rounded-circle bg-danger-subtle mb-4"
+                         style="width: 80px; height: 80px;">
+                        <i class="bi bi-exclamation-triangle text-danger" style="font-size: 40px;"></i>
+                    </div>
+
+                    <h5 class="mb-3">¿Estás seguro?</h5>
+                    <p class="text-muted mb-1">Esta acción eliminará permanentemente al curso:</p>
+                    <p class="fs-5 fw-bold text-dark" id="eliminarNombre"></p>
+                    <p class="text-muted small">Los alumnos asignados quedarán sin curso.</p>
                 </div>
-                <div class="modal-footer" style="border-top: none; justify-content: center;">
+                <div class="modal-footer" style="justify-content: center;">
                     <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
                     <a id="btnConfirmarEliminar" href="#" class="btn-submit" style="background: #dc3545; text-decoration: none;">Eliminar</a>
                 </div>
@@ -415,54 +434,8 @@
         </div>
     </div>
 
-    <!-- Modal Ver Curso -->
-    <div class="modal fade" id="modalVer" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Detalle del Curso</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="detail-row">
-                        <span class="detail-label">ID</span>
-                        <span class="detail-value" id="verId"></span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Código</span>
-                        <span class="detail-value" id="verCodigo"></span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Nombre</span>
-                        <span class="detail-value" id="verNombre"></span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Descripción</span>
-                        <span class="detail-value" id="verDescripcion"></span>
-                    </div>
-                    <div class="detail-row">
-                        <span class="detail-label">Alumnos</span>
-                        <span class="detail-value" id="verAlumnos"></span>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cerrar</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function abrirModalVer(btn) {
-            document.getElementById('verId').textContent = btn.dataset.id;
-            document.getElementById('verCodigo').textContent = btn.dataset.codigo;
-            document.getElementById('verNombre').textContent = btn.dataset.nombre;
-            document.getElementById('verDescripcion').textContent = btn.dataset.descripcion;
-            document.getElementById('verAlumnos').textContent = btn.dataset.alumnos;
-            
-            new bootstrap.Modal(document.getElementById('modalVer')).show();
-        }
 
         function abrirModalEditar(btn) {
             const id = btn.dataset.id;
@@ -487,6 +460,9 @@
             document.getElementById('btnConfirmarEliminar').href = '/cursos/eliminar/' + id;
             
             new bootstrap.Modal(document.getElementById('modalEliminar')).show();
+        }
+
+        function abrirModalMostrarAlumnos(btn) {
         }
 
         function abrirModalAsignar(btn) {
