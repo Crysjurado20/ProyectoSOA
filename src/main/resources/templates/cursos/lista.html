@@ -309,6 +309,18 @@
             white-space: normal;
             /* Permite que el texto salte de línea */
         }
+
+        /* Validation Error Styles */
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .invalid-feedback {
+            display: block;
+            color: #dc3545;
+            font-size: 13px;
+            margin-top: 5px;
+        }
     </style>
 </head>
 
@@ -412,20 +424,31 @@
                     <h5 class="modal-title">Nuevo Curso</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form th:action="@{/cursos/nuevo}" method="post">
+                <form th:action="@{/cursos/nuevo}" th:object="${curso}" method="post">
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Código *</label>
-                            <input type="text" class="form-control" name="codigo" required maxlength="4"
-                                placeholder="Ej: B01">
+                            <input type="text" class="form-control" th:field="*{codigo}"
+                                th:classappend="${#fields.hasErrors('codigo')} ? 'is-invalid' : ''"
+                                required maxlength="4" placeholder="Ej: B01">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('codigo')}" th:errors="*{codigo}">
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Nombre *</label>
-                            <input type="text" class="form-control" name="nombre" required maxlength="40">
+                            <input type="text" class="form-control" th:field="*{nombre}"
+                                th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
+                                required maxlength="40">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}">
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Descripción</label>
-                            <textarea class="form-control" name="descripcion" rows="3" maxlength="180"></textarea>
+                            <textarea class="form-control" th:field="*{descripcion}"
+                                th:classappend="${#fields.hasErrors('descripcion')} ? 'is-invalid' : ''"
+                                rows="3" maxlength="180"></textarea>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}">
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -730,6 +753,26 @@
                     mensajeNoResultados.style.display = '';
                 } else {
                     mensajeNoResultados.style.display = 'none';
+                }
+            });
+        });
+
+        // Auto-open modal when modalError is true
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalError = [[${modalError}]];
+            if (modalError) {
+                const modalNuevo = new bootstrap.Modal(document.getElementById('modalNuevo'));
+                modalNuevo.show();
+            }
+        });
+
+        // Clean up modal and redirect when manually closed
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalElement = document.getElementById('modalNuevo');
+            modalElement.addEventListener('hidden.bs.modal', function () {
+                // If URL is /cursos/nuevo, redirect to clean URL
+                if (window.location.pathname === '/cursos/nuevo') {
+                    window.location.href = '/cursos';
                 }
             });
         });

@@ -185,6 +185,7 @@ public class WebController {
                 .filter(a -> a.getCurso() == null)
                 .toList());
         model.addAttribute("todosAlumnos", alumnoService.listar());
+        model.addAttribute("curso", new CursoCreateDto("", "", ""));
         return "cursos/lista";
     }
 
@@ -197,7 +198,8 @@ public class WebController {
     @PostMapping("/cursos/nuevo")
     public String guardarCurso(@Valid @ModelAttribute("curso") CursoCreateDto dto,
             BindingResult result,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            Model model) {
         if (result.hasErrors()) {
             return "cursos/formulario";
         }
@@ -205,6 +207,16 @@ public class WebController {
             cursoService.crear(dto);
             redirectAttributes.addFlashAttribute("mensaje", "Curso creado exitosamente");
             return "redirect:/cursos";
+        } catch (IllegalArgumentException e) {
+            result.rejectValue("codigo", "error.curso", e.getMessage());
+            model.addAttribute("modalError", true);
+            model.addAttribute("curso", dto);
+            model.addAttribute("cursos", cursoService.listarConAlumnos());
+            model.addAttribute("alumnosDisponibles", alumnoService.listar().stream()
+                    .filter(a -> a.getCurso() == null)
+                    .toList());
+            model.addAttribute("todosAlumnos", alumnoService.listar());
+            return "cursos/lista";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/cursos/nuevo";
