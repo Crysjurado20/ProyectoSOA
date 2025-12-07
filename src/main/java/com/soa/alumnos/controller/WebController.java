@@ -11,6 +11,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 @Controller
 public class WebController {
 
@@ -73,6 +75,7 @@ public class WebController {
     public String listarAlumnos(Model model) {
         model.addAttribute("alumnos", alumnoService.listarConCurso());
         model.addAttribute("cursos", cursoService.listar());
+        model.addAttribute("alumno", new AlumnoCreateDto("", "", "", "", ""));
         return "alumnos/lista";
     }
 
@@ -85,14 +88,19 @@ public class WebController {
 
     @PostMapping("/alumnos/nuevo")
     public String guardarAlumno(@Valid @ModelAttribute("alumno") AlumnoCreateDto dto,
-            BindingResult result,
-            @RequestParam(required = false) Long cursoId,
-            RedirectAttributes redirectAttributes,
-            Model model) {
+                                BindingResult result,
+                                @RequestParam(required = false) Long cursoId,
+                                RedirectAttributes redirectAttributes,
+                                Model model) {
+
+        // 1. Si ya hay errores de validación estándar (ej: campo vacío), regresamos a la vista con modal abierto
         if (result.hasErrors()) {
+            model.addAttribute("alumnos", alumnoService.listarConCurso());
             model.addAttribute("cursos", cursoService.listar());
-            return "alumnos/formulario";
+            model.addAttribute("modalError", true);
+            return "alumnos/lista";
         }
+
         try {
             alumnoService.crear(dto);
             if (cursoId != null) {
@@ -100,9 +108,22 @@ public class WebController {
             }
             redirectAttributes.addFlashAttribute("mensaje", "Alumno creado exitosamente");
             return "redirect:/alumnos";
+
+        } catch (IllegalArgumentException e) {
+            // En lugar de redirect, inyectamos el error manualmente al campo "cedula"
+            result.rejectValue("cedula", "error.alumno", e.getMessage());
+
+            // Recargamos los datos necesarios para la vista (listas, etc.)
+            model.addAttribute("alumnos", alumnoService.listarConCurso());
+            model.addAttribute("cursos", cursoService.listar());
+            model.addAttribute("modalError", true);
+
+            // Retornamos la VISTA (el html) con el modal abierto
+            return "alumnos/lista";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-            return "redirect:/alumnos/nuevo";
+            // Para otros errores no controlados
+            redirectAttributes.addFlashAttribute("error", "Error inesperado: " + e.getMessage());
+            return "redirect:/alumnos";
         }
     }
 
@@ -166,6 +187,7 @@ public class WebController {
                 .filter(a -> a.getCurso() == null)
                 .toList());
         model.addAttribute("todosAlumnos", alumnoService.listar());
+        model.addAttribute("curso", new CursoCreateDto("", "", ""));
         return "cursos/lista";
     }
 
@@ -178,7 +200,8 @@ public class WebController {
     @PostMapping("/cursos/nuevo")
     public String guardarCurso(@Valid @ModelAttribute("curso") CursoCreateDto dto,
             BindingResult result,
-            RedirectAttributes redirectAttributes) {
+            RedirectAttributes redirectAttributes,
+            Model model) {
         if (result.hasErrors()) {
             return "cursos/formulario";
         }
@@ -186,6 +209,16 @@ public class WebController {
             cursoService.crear(dto);
             redirectAttributes.addFlashAttribute("mensaje", "Curso creado exitosamente");
             return "redirect:/cursos";
+        } catch (IllegalArgumentException e) {
+            result.rejectValue("codigo", "error.curso", e.getMessage());
+            model.addAttribute("modalError", true);
+            model.addAttribute("curso", dto);
+            model.addAttribute("cursos", cursoService.listarConAlumnos());
+            model.addAttribute("alumnosDisponibles", alumnoService.listar().stream()
+                    .filter(a -> a.getCurso() == null)
+                    .toList());
+            model.addAttribute("todosAlumnos", alumnoService.listar());
+            return "cursos/lista";
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/cursos/nuevo";
@@ -243,11 +276,17 @@ public class WebController {
 
     @PostMapping("/cursos/{id}/asignar-alumno")
     public String asignarAlumnoACurso(@PathVariable Long id,
-            @RequestParam String cedula,
+            @RequestParam(required = false) List<String> cedulas,
             RedirectAttributes redirectAttributes) {
         try {
-            cursoService.asignarAlumno(id, cedula);
-            redirectAttributes.addFlashAttribute("mensaje", "Alumno asignado exitosamente");
+            if (cedulas == null || cedulas.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "Debe seleccionar al menos un alumno");
+                return "redirect:/cursos";
+            }
+            int asignados = cursoService.asignarAlumnos(id, cedulas);
+            String mensaje = asignados == 1 ? "1 alumno asignado exitosamente" : 
+                            asignados + " alumnos asignados exitosamente";
+            redirectAttributes.addFlashAttribute("mensaje", mensaje);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
