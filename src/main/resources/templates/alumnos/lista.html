@@ -166,6 +166,11 @@
             color: #6b7280;
         }
 
+        .badge-primary {
+            background: #111;
+            color: white;
+        }
+
         .btn-icon {
             border: none;
             background: transparent;
@@ -366,7 +371,7 @@
                         <td th:text="${alumno.apellido}"></td>
                         <td th:text="${alumno.telefono}"></td>
                         <td>
-                            <span th:if="${alumno.curso != null}" class="badge badge-success"
+                            <span th:if="${alumno.curso != null}" class="badge badge-primary"
                                 th:text="${alumno.curso.nombre}"></span>
                             <span th:if="${alumno.curso == null}" class="badge badge-secondary">Sin asignar</span>
                         </td>

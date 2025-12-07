@@ -756,26 +756,6 @@
                 }
             });
         });
-
-        // Auto-open modal when modalError is true
-        document.addEventListener('DOMContentLoaded', function () {
-            const modalError = [[${modalError}]];
-            if (modalError) {
-                const modalNuevo = new bootstrap.Modal(document.getElementById('modalNuevo'));
-                modalNuevo.show();
-            }
-        });
-
-        // Clean up modal and redirect when manually closed
-        document.addEventListener('DOMContentLoaded', function () {
-            const modalElement = document.getElementById('modalNuevo');
-            modalElement.addEventListener('hidden.bs.modal', function () {
-                // If URL is /cursos/nuevo, redirect to clean URL
-                if (window.location.pathname === '/cursos/nuevo') {
-                    window.location.href = '/cursos';
-                }
-            });
-        });
     </script>
 </body>
 
