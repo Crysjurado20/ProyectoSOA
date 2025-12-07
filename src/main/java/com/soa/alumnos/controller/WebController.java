@@ -73,6 +73,7 @@ public class WebController {
     public String listarAlumnos(Model model) {
         model.addAttribute("alumnos", alumnoService.listarConCurso());
         model.addAttribute("cursos", cursoService.listar());
+        model.addAttribute("alumno", new AlumnoCreateDto("", "", "", "", ""));
         return "alumnos/lista";
     }
 
@@ -90,10 +91,12 @@ public class WebController {
                                 RedirectAttributes redirectAttributes,
                                 Model model) {
 
-        // 1. Si ya hay errores de validación estándar (ej: campo vacío), regresamos a la vista
+        // 1. Si ya hay errores de validación estándar (ej: campo vacío), regresamos a la vista con modal abierto
         if (result.hasErrors()) {
+            model.addAttribute("alumnos", alumnoService.listarConCurso());
             model.addAttribute("cursos", cursoService.listar());
-            return "alumnos/formulario";
+            model.addAttribute("modalError", true);
+            return "alumnos/lista";
         }
 
         try {
@@ -104,21 +107,21 @@ public class WebController {
             redirectAttributes.addFlashAttribute("mensaje", "Alumno creado exitosamente");
             return "redirect:/alumnos";
 
-        } catch (IllegalArgumentException e) { // Asumo que tu servicio lanza IllegalArgumentException para duplicados
-            // 2. AQUÍ ESTÁ EL CAMBIO CLAVE:
+        } catch (IllegalArgumentException e) {
             // En lugar de redirect, inyectamos el error manualmente al campo "cedula"
-            // arg0: nombre del campo, arg1: código de error (opcional), arg2: mensaje de la excepción
             result.rejectValue("cedula", "error.alumno", e.getMessage());
 
-            // 3. Recargamos los datos necesarios para la vista (combos, listas, etc.)
+            // Recargamos los datos necesarios para la vista (listas, etc.)
+            model.addAttribute("alumnos", alumnoService.listarConCurso());
             model.addAttribute("cursos", cursoService.listar());
+            model.addAttribute("modalError", true);
 
-            // 4. Retornamos la VISTA (el html), NO un redirect
-            return "alumnos/formulario";
+            // Retornamos la VISTA (el html) con el modal abierto
+            return "alumnos/lista";
         } catch (Exception e) {
-            // Para otros errores no controlados, mantenemos el comportamiento anterior
+            // Para otros errores no controlados
             redirectAttributes.addFlashAttribute("error", "Error inesperado: " + e.getMessage());
-            return "redirect:/alumnos/nuevo";
+            return "redirect:/alumnos";
         }
     }
 

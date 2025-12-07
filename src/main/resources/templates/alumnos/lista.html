@@ -237,6 +237,22 @@
             box-shadow: none;
         }
 
+        .form-control.is-invalid {
+            border-color: #dc3545;
+        }
+
+        .form-control.is-invalid:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
+
+        .invalid-feedback {
+            display: block;
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
         .btn-cancel {
             background: #f5f5f5;
             color: #333;
@@ -388,34 +404,49 @@
                     <h5 class="modal-title">Nuevo Alumno</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <form th:action="@{/alumnos/nuevo}" method="post">
+                <form th:action="@{/alumnos/nuevo}" th:object="${alumno}" method="post">
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label">Cédula *</label>
-                            <input type="text" class="form-control" name="cedula" required maxlength="10"
+                            <input type="text" class="form-control" th:field="*{cedula}" 
+                                th:classappend="${#fields.hasErrors('cedula')} ? 'is-invalid' : ''"
+                                required maxlength="10"
                                 pattern="(0[1-9]|1[0-9]|2[0-4]|30)[0-9]{8}"
                                 title="Debe tener 10 dígitos y comenzar con un código provincial válido (01-24 o 30)"
                                 placeholder="Ej: 0112345678" oninput="soloNumeros(this)">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('cedula')}" th:errors="*{cedula}"></div>
                         </div>
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Nombre *</label>
-                                <input type="text" class="form-control" name="nombre" required maxlength="20">
+                                <input type="text" class="form-control" th:field="*{nombre}" 
+                                    th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
+                                    required maxlength="20">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Apellido *</label>
-                                <input type="text" class="form-control" name="apellido" required maxlength="20">
+                                <input type="text" class="form-control" th:field="*{apellido}" 
+                                    th:classappend="${#fields.hasErrors('apellido')} ? 'is-invalid' : ''"
+                                    required maxlength="20">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Dirección *</label>
-                            <input type="text" class="form-control" name="direccion" required maxlength="50">
+                            <input type="text" class="form-control" th:field="*{direccion}" 
+                                th:classappend="${#fields.hasErrors('direccion')} ? 'is-invalid' : ''"
+                                required maxlength="50">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Teléfono *</label>
-                            <input type="text" class="form-control" name="telefono" required maxlength="10"
+                            <input type="text" class="form-control" th:field="*{telefono}" 
+                                th:classappend="${#fields.hasErrors('telefono')} ? 'is-invalid' : ''"
+                                required maxlength="10"
                                 pattern="09[0-9]{8}" title="Debe tener 10 dígitos y comenzar con 09"
                                 placeholder="Ej: 0991234567" oninput="soloNumeros(this)">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Curso (Opcional)</label>
@@ -592,6 +623,19 @@
         document.addEventListener('DOMContentLoaded', function () {
             var myModal = new bootstrap.Modal(document.getElementById('modalNuevo'));
             myModal.show();
+        });
+    </script>
+
+    <script>
+        // Limpiar formulario del modal cuando se cierra
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalNuevo = document.getElementById('modalNuevo');
+            modalNuevo.addEventListener('hidden.bs.modal', function () {
+                // Si la URL es /alumnos/nuevo, redirigir a /alumnos para limpiar el estado
+                if (window.location.pathname === '/alumnos/nuevo') {
+                    window.location.href = '/alumnos';
+                }
+            });
         });
     </script>
 </body>
