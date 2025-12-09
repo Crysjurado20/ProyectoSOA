@@ -99,46 +99,46 @@
 </head>
 
 <body>
-    <div class="login-container">
-        <div class="logo">
-            <h1>Sistema de Alumnos</h1>
-            <p>Ingresa a tu cuenta</p>
-        </div>
-
-        <div th:if="${param.error}" class="alert alert-danger mb-3">
-            Usuario o contraseña incorrectos
-        </div>
-
-        <div th:if="${param.logout}" class="alert alert-success mb-3">
-            Sesión cerrada exitosamente
-        </div>
-
-        <div th:if="${mensaje}" class="alert alert-success mb-3">
-            <span th:text="${mensaje}"></span>
-        </div>
-
-        <form th:action="@{/login}" method="post">
-            <div class="mb-3">
-                <label for="username" class="form-label">Usuario o Correo</label>
-                <input type="text" class="form-control" id="username" name="username" 
-                    placeholder="Ingresa tu usuario o correo electrónico" required autofocus>
-            </div>
-
-            <div class="mb-4">
-                <label for="password" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="password" name="password" 
-                    placeholder="Ingresa tu contraseña" required>
-            </div>
-
-            <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
-        </form>
-
-        <div class="divider">o</div>
-
-        <p class="register-link">
-            ¿No tienes cuenta? <a th:href="@{/registro}">Crear cuenta</a>
-        </p>
+<div class="login-container">
+    <div class="logo">
+        <h1>Sistema de Alumnos</h1>
+        <p>Ingresa a tu cuenta</p>
     </div>
+
+    <div th:if="${param.error}" class="alert alert-danger mb-3">
+        Usuario o contraseña incorrectos
+    </div>
+
+    <div th:if="${param.logout}" class="alert alert-success mb-3">
+        Sesión cerrada exitosamente
+    </div>
+
+    <div th:if="${mensaje}" class="alert alert-success mb-3">
+        <span th:text="${mensaje}"></span>
+    </div>
+
+    <form th:action="@{/login}" method="post">
+        <div class="mb-3">
+            <label for="username" class="form-label">Usuario o Correo</label>
+            <input type="text" class="form-control" id="username" name="username"
+                   placeholder="Ingresa tu usuario o correo electrónico" required autofocus>
+        </div>
+
+        <div class="mb-4">
+            <label for="password" class="form-label">Contraseña</label>
+            <input type="password" class="form-control" id="password" name="password"
+                   placeholder="Ingresa tu contraseña" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+    </form>
+
+    <div class="divider">o</div>
+
+    <p class="register-link">
+        ¿No tienes cuenta? <a th:href="@{/registro}">Crear cuenta</a>
+    </p>
+</div>
 </body>
 
 </html>

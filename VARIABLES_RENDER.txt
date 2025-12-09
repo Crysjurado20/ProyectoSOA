@@ -1,0 +1,50 @@
+=================================================
+VARIABLES DE ENTORNO PARA RENDER
+=================================================
+
+Copia estas 4 variables en Render.
+IMPORTANTE: Reemplaza los valores entre [ ] con tus valores reales de Railway
+
+-------------------------------------------------
+Variable 1:
+-------------------------------------------------
+Nombre: DATABASE_URL
+Valor:  mysql://root:QjyqentQgPscDukcMTIOSEhBnjbmnwER@tramway.proxy.rlwy.net:43204/railway
+
+NOTA: Si en Railway tu MYSQL_PUBLIC_URL tiene otro host o puerto diferente,
+      cámbialo aquí. Solo asegúrate que empiece con "jdbc:mysql://"
+
+-------------------------------------------------
+Variable 2:
+-------------------------------------------------
+Nombre: DATABASE_USER
+Valor:  root
+
+-------------------------------------------------
+Variable 3:
+-------------------------------------------------
+Nombre: DATABASE_PASSWORD
+Valor:  QjyqentQgPscDukcMTIOSEhBnjbmnwER
+
+CÓMO OBTENERLA:
+1. Ve a Railway → Tu servicio MySQL → Variables
+2. Busca MYSQL_ROOT_PASSWORD
+3. Click en los 3 puntos (⋮) → "Copy"
+4. Pega ese valor aquí y luego cópialo a Render
+
+-------------------------------------------------
+Variable 4:
+-------------------------------------------------
+Nombre: PORT
+Valor:  8080
+
+=================================================
+PASOS EN RENDER:
+=================================================
+1. Click en "+ Add Environment Variable"
+2. Escribe el Nombre (ejemplo: DATABASE_URL)
+3. Pega el Valor correspondiente
+4. Repite para las 4 variables
+5. Click en "Create Web Service"
+
+=================================================
