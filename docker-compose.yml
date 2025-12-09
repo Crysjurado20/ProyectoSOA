@@ -6,7 +6,7 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root123
-      MYSQL_DATABASE: soa
+      MYSQL_DATABASE: railway
       MYSQL_USER: appuser
       MYSQL_PASSWORD: apppass123
     ports:
@@ -34,11 +34,13 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      DATABASE_URL: jdbc:mysql://mysql:3306/soa?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      DATABASE_URL: jdbc:mysql://mysql:3306/railway?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       DATABASE_USER: appuser
       DATABASE_PASSWORD: apppass123
       SERVER_PORT: 8080
       SPRING_PROFILES_ACTIVE: docker
+    ports:
+      - "8080:8080"
     networks:
       - alumnos-network
 
@@ -48,4 +50,3 @@ networks:
 
 volumes:
   mysql_data:
-    driver: local

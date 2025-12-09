@@ -1,0 +1,39 @@
+services:
+  # Base de datos MySQL
+  - type: pserv
+    name: alumnos-mysql
+    env: docker
+    dockerfilePath: ./Dockerfile.mysql
+    plan: free
+    envVars:
+      - key: MYSQL_ROOT_PASSWORD
+        generateValue: true
+      - key: MYSQL_DATABASE
+        value: soa
+      - key: MYSQL_USER
+        value: appuser
+      - key: MYSQL_PASSWORD
+        generateValue: true
+    disk:
+      name: mysql-data
+      mountPath: /var/lib/mysql
+      sizeGB: 1
+
+  # Aplicación Spring Boot
+  - type: web
+    name: alumnos-app
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /login
+    envVars:
+      - key: DATABASE_URL
+        value: jdbc:mysql://alumnos-mysql:3306/soa?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - key: DATABASE_USER
+        value: appuser
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: SERVER_PORT
+        value: 8080
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
