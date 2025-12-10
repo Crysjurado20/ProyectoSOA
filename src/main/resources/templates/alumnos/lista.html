@@ -315,7 +315,7 @@
             font-size: 14px;
             color: #111;
         }
-
+        
         /* Logo decorativo en esquina */
         .corner-logo {
             position: fixed;
@@ -328,7 +328,7 @@
             pointer-events: none;
             transform: rotate(-8deg);
         }
-
+        
         /* Ocultar en pantallas pequeñas o cuando hay mucho contenido */
         @media (max-height: 600px) {
             .corner-logo {
@@ -346,335 +346,382 @@
 </head>
 
 <body>
-<div class="sidebar">
-    <div class="brand">Gestión de Alumnos</div>
-    <nav>
-        <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
-        <a class="nav-link active" th:href="@{/alumnos}">Alumnos</a>
-        <a class="nav-link" th:href="@{/cursos}" sec:authorize="hasRole('ADMIN')">Cursos</a>
-        <div class="nav-divider"></div>
-        <a class="nav-link" th:href="@{/logout}">Cerrar sesión</a>
-    </nav>
-</div>
+    <div class="sidebar">
+        <div class="brand">Gestión de Alumnos</div>
+        <nav>
+            <a class="nav-link" th:href="@{/dashboard}">Dashboard</a>
+            <a class="nav-link active" th:href="@{/alumnos}">Alumnos</a>
+            <a class="nav-link" th:href="@{/cursos}" sec:authorize="hasRole('ADMIN')">Cursos</a>
+            <div class="nav-divider"></div>
+            <a class="nav-link" th:href="@{/logout}">Cerrar sesión</a>
+        </nav>
+    </div>
 
-<div class="main-content">
-    <div class="page-header">
-        <h1 class="page-title">Alumnos</h1>
-        <div style="display: flex; gap: 16px; align-items: center;">
-            <div class="input-group" style="width: 260px;">
+    <div class="main-content">
+        <div class="page-header">
+            <h1 class="page-title">Alumnos</h1>
+            <div style="display: flex; gap: 16px; align-items: center;">
+                <div class="input-group" style="width: 260px;">
                     <span class="input-group-text" style="background: #f3f4f6; border: 1px solid #ddd;"><i
                             class="bi bi-search"></i></span>
-                <input type="text" id="buscadorCedula" class="form-control" maxlength="10" oninput="soloNumeros(this)" placeholder="Buscar por cédula..."
-                       style="border: 1px solid #ddd;">
+                    <input type="text" id="buscadorCedula" class="form-control" maxlength="10" oninput="soloNumeros(this)" placeholder="Buscar por cédula..."
+                        style="border: 1px solid #ddd;">
+                </div>
+                <button class="btn-new" data-bs-toggle="modal" data-bs-target="#modalNuevo">Nuevo Alumno <i
+                        class="bi bi-plus-circle" style="padding-left: 5px;"></i> </button>
             </div>
-            <button class="btn-new" data-bs-toggle="modal" data-bs-target="#modalNuevo">Nuevo Alumno <i
-                    class="bi bi-plus-circle" style="padding-left: 5px;"></i> </button>
         </div>
-    </div>
 
-    <div th:if="${mensaje}" class="alert alert-success">
-        <span th:text="${mensaje}"></span>
-    </div>
-    <div th:if="${error}" class="alert alert-danger">
-        <span th:text="${error}"></span>
-    </div>
+        <div th:if="${mensaje}" class="alert alert-success">
+            <span th:text="${mensaje}"></span>
+        </div>
+        <div th:if="${error}" class="alert alert-danger">
+            <span th:text="${error}"></span>
+        </div>
 
-    <div class="table-container">
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Cédula</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Teléfono</th>
-                <th>Curso</th>
-                <th style="width: 120px;">Acciones</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="alumno : ${alumnos}">
-                <td th:text="${alumno.cedula}"></td>
-                <td th:text="${alumno.nombre}"></td>
-                <td th:text="${alumno.apellido}"></td>
-                <td th:text="${alumno.telefono}"></td>
-                <td>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Cédula</th>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Teléfono</th>
+                        <th>Curso</th>
+                        <th style="width: 120px;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="alumno : ${alumnos}">
+                        <td th:text="${alumno.cedula}"></td>
+                        <td th:text="${alumno.nombre}"></td>
+                        <td th:text="${alumno.apellido}"></td>
+                        <td th:text="${alumno.telefono}"></td>
+                        <td>
                             <span th:if="${alumno.curso != null}" class="badge badge-primary"
-                                  th:text="${alumno.curso.nombre}"></span>
-                    <span th:if="${alumno.curso == null}" class="badge badge-secondary">Sin asignar</span>
-                </td>
-                <td>
-                    <button class="btn-icon" title="Editar" th:data-cedula="${alumno.cedula}"
-                            th:data-nombre="${alumno.nombre}" th:data-apellido="${alumno.apellido}"
-                            th:data-direccion="${alumno.direccion}" th:data-telefono="${alumno.telefono}"
-                            th:data-curso-id="${alumno.curso != null ? alumno.curso.id : ''}"
-                            onclick="abrirModalEditar(this)"><i class="bi bi-pencil-square"></i></button>
-                    <button class="btn-icon danger" title="Eliminar" th:data-cedula="${alumno.cedula}"
-                            th:data-nombre="${alumno.nombre + ' ' + alumno.apellido}"
-                            onclick="abrirModalEliminar(this)"><i class="bi bi-trash-fill"></i></button>
-                </td>
-            </tr>
-            <tr th:if="${#lists.isEmpty(alumnos)}">
-                <td colspan="6" style="text-align: center; color: #999; padding: 40px;">
-                    No hay alumnos registrados
-                </td>
-            </tr>
-            <tr id="filaNoCoincidencias" style="display: none;">
-                <td colspan="6" style="text-align: center; color: #666; padding: 30px; background: white;">
-                    No se encontraron coincidencias para tu búsqueda.
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                                th:text="${alumno.curso.nombre}"></span>
+                            <span th:if="${alumno.curso == null}" class="badge badge-secondary">Sin asignar</span>
+                        </td>
+                        <td>
+                            <button class="btn-icon" title="Editar" th:data-cedula="${alumno.cedula}"
+                                th:data-nombre="${alumno.nombre}" th:data-apellido="${alumno.apellido}"
+                                th:data-direccion="${alumno.direccion}" th:data-telefono="${alumno.telefono}"
+                                th:data-curso-id="${alumno.curso != null ? alumno.curso.id : ''}"
+                                onclick="abrirModalEditar(this)"><i class="bi bi-pencil-square"></i></button>
+                            <button class="btn-icon danger" title="Eliminar" th:data-cedula="${alumno.cedula}"
+                                th:data-nombre="${alumno.nombre + ' ' + alumno.apellido}"
+                                onclick="abrirModalEliminar(this)"><i class="bi bi-trash-fill"></i></button>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(alumnos)}">
+                        <td colspan="6" style="text-align: center; color: #999; padding: 40px;">
+                            No hay alumnos registrados
+                        </td>
+                    </tr>
+                    <tr id="filaNoCoincidencias" style="display: none;">
+                        <td colspan="6" style="text-align: center; color: #666; padding: 30px; background: white;">
+                            No se encontraron coincidencias para tu búsqueda.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
-</div>
 
-<!-- Modal Nuevo Alumno -->
-<div class="modal fade" id="modalNuevo" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Nuevo Alumno</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form th:action="@{/alumnos/nuevo}" th:object="${alumno}" method="post">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Cédula *</label>
-                        <input type="text" class="form-control" th:field="*{cedula}"
-                               th:classappend="${#fields.hasErrors('cedula')} ? 'is-invalid' : ''"
-                               required maxlength="10"
-                               pattern="(0[1-9]|1[0-9]|2[0-4]|30)[0-9]{8}"
-                               title="Debe tener 10 dígitos y comenzar con un código provincial válido (01-24 o 30)"
-                               placeholder="Ej: 0112345678" oninput="soloNumeros(this)">
-                        <div class="invalid-feedback" th:if="${#fields.hasErrors('cedula')}" th:errors="*{cedula}"></div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Nombre *</label>
-                            <input type="text" class="form-control" th:field="*{nombre}"
-                                   th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
-                                   required maxlength="20">
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Apellido *</label>
-                            <input type="text" class="form-control" th:field="*{apellido}"
-                                   th:classappend="${#fields.hasErrors('apellido')} ? 'is-invalid' : ''"
-                                   required maxlength="20">
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Dirección *</label>
-                        <input type="text" class="form-control" th:field="*{direccion}"
-                               th:classappend="${#fields.hasErrors('direccion')} ? 'is-invalid' : ''"
-                               required maxlength="50">
-                        <div class="invalid-feedback" th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Teléfono *</label>
-                        <input type="text" class="form-control" th:field="*{telefono}"
-                               th:classappend="${#fields.hasErrors('telefono')} ? 'is-invalid' : ''"
-                               required maxlength="10"
-                               pattern="09[0-9]{8}" title="Debe tener 10 dígitos y comenzar con 09"
-                               placeholder="Ej: 0991234567" oninput="soloNumeros(this)">
-                        <div class="invalid-feedback" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Curso (Opcional)</label>
-                        <select class="form-select" name="cursoId">
-                            <option value="">Sin asignar</option>
-                            <option th:each="curso : ${cursos}" th:value="${curso.id}" th:text="${curso.nombre}">
-                            </option>
-                        </select>
-                    </div>
+    <!-- Modal Nuevo Alumno -->
+    <div class="modal fade" id="modalNuevo" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Nuevo Alumno</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-footer">
+                <form th:action="@{/alumnos/nuevo}" th:object="${alumno}" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Cédula *</label>
+                            <input type="text" class="form-control" th:field="*{cedula}" 
+                                th:classappend="${#fields.hasErrors('cedula')} ? 'is-invalid' : ''"
+                                required maxlength="10"
+                                pattern="(0[1-9]|1[0-9]|2[0-4]|30)[0-9]{8}"
+                                title="Debe tener 10 dígitos y comenzar con un código provincial válido (01-24 o 30)"
+                                placeholder="Ej: 0112345678" oninput="soloNumeros(this)">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('cedula')}" th:errors="*{cedula}"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" th:field="*{nombre}" 
+                                    th:classappend="${#fields.hasErrors('nombre')} ? 'is-invalid' : ''"
+                                    required maxlength="20">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Apellido *</label>
+                                <input type="text" class="form-control" th:field="*{apellido}" 
+                                    th:classappend="${#fields.hasErrors('apellido')} ? 'is-invalid' : ''"
+                                    required maxlength="20">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Dirección *</label>
+                            <input type="text" class="form-control" th:field="*{direccion}" 
+                                th:classappend="${#fields.hasErrors('direccion')} ? 'is-invalid' : ''"
+                                required maxlength="50">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Teléfono *</label>
+                            <input type="text" class="form-control" th:field="*{telefono}" 
+                                th:classappend="${#fields.hasErrors('telefono')} ? 'is-invalid' : ''"
+                                required maxlength="10"
+                                pattern="09[0-9]{8}" title="Debe tener 10 dígitos y comenzar con 09"
+                                placeholder="Ej: 0991234567" oninput="soloNumeros(this)">
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Curso (Opcional)</label>
+                            <select class="form-select" name="cursoId">
+                                <option value="">Sin asignar</option>
+                                <option th:each="curso : ${cursos}" th:value="${curso.id}" th:text="${curso.nombre}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn-submit">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Editar Alumno -->
+    <div class="modal fade" id="modalEditar" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Alumno</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="formEditar" method="post">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Cédula</label>
+                            <input type="text" class="form-control" id="editCedula" disabled>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" id="editNombre" name="nombre" required
+                                    maxlength="20">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Apellido *</label>
+                                <input type="text" class="form-control" id="editApellido" name="apellido" required
+                                    maxlength="20">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Dirección *</label>
+                            <input type="text" class="form-control" id="editDireccion" name="direccion" maxlength="50"
+                                required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Teléfono *</label>
+                            <input type="text" class="form-control" id="editTelefono" name="telefono" maxlength="10"
+                                pattern="09[0-9]{8}" title="Debe tener 10 dígitos y comenzar con 09"
+                                oninput="soloNumeros(this)" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Curso (Opcional)</label>
+                            <select class="form-select" id="editCursoId" name="cursoId">
+                                <option value="">Sin asignar</option>
+                                <option th:each="curso : ${cursos}" th:value="${curso.id}" th:text="${curso.nombre}">
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn-submit">Actualizar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Confirmar Eliminar -->
+    <div class="modal fade" id="modalEliminar" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <div class="mx-auto d-flex align-items-center justify-content-center rounded-circle bg-danger-subtle mb-4"
+                        style="width: 80px; height: 80px;">
+                        <i class="bi bi-exclamation-triangle text-danger" style="font-size: 40px;"></i>
+                    </div>
+
+                    <h5 class="mb-3">¿Estás seguro?</h5>
+                    <p class="text-muted mb-1">Esta acción eliminará permanentemente al alumno:</p>
+                    <p class="fs-5 fw-bold text-dark" id="eliminarNombre"></p>
+                    <p class="text-muted small">Esta acción no se puede deshacer.</p>
+                </div>
+                <div class="modal-footer" style="justify-content: center;">
                     <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn-submit">Guardar</button>
+                    <a id="btnConfirmarEliminar" href="#" class="btn-submit"
+                        style="background: #dc3545; text-decoration: none;">Eliminar</a>
                 </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Editar Alumno -->
-<div class="modal fade" id="modalEditar" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Editar Alumno</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <form id="formEditar" method="post">
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Cédula</label>
-                        <input type="text" class="form-control" id="editCedula" disabled>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Nombre *</label>
-                            <input type="text" class="form-control" id="editNombre" name="nombre" required
-                                   maxlength="20">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Apellido *</label>
-                            <input type="text" class="form-control" id="editApellido" name="apellido" required
-                                   maxlength="20">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Dirección *</label>
-                        <input type="text" class="form-control" id="editDireccion" name="direccion" maxlength="50"
-                               required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Teléfono *</label>
-                        <input type="text" class="form-control" id="editTelefono" name="telefono" maxlength="10"
-                               pattern="09[0-9]{8}" title="Debe tener 10 dígitos y comenzar con 09"
-                               oninput="soloNumeros(this)" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Curso (Opcional)</label>
-                        <select class="form-select" id="editCursoId" name="cursoId">
-                            <option value="">Sin asignar</option>
-                            <option th:each="curso : ${cursos}" th:value="${curso.id}" th:text="${curso.nombre}">
-                            </option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn-submit">Actualizar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Confirmar Eliminar -->
-<div class="modal fade" id="modalEliminar" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Confirmar Eliminación</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center py-4">
-                <div class="mx-auto d-flex align-items-center justify-content-center rounded-circle bg-danger-subtle mb-4"
-                     style="width: 80px; height: 80px;">
-                    <i class="bi bi-exclamation-triangle text-danger" style="font-size: 40px;"></i>
-                </div>
-
-                <h5 class="mb-3">¿Estás seguro?</h5>
-                <p class="text-muted mb-1">Esta acción eliminará permanentemente al alumno:</p>
-                <p class="fs-5 fw-bold text-dark" id="eliminarNombre"></p>
-                <p class="text-muted small">Esta acción no se puede deshacer.</p>
-            </div>
-            <div class="modal-footer" style="justify-content: center;">
-                <button type="button" class="btn-cancel" data-bs-dismiss="modal">Cancelar</button>
-                <a id="btnConfirmarEliminar" href="#" class="btn-submit"
-                   style="background: #dc3545; text-decoration: none;">Eliminar</a>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<script th:inline="javascript">
-    function abrirModalEditar(btn) {
-        const cedula = btn.dataset.cedula;
-        const nombre = btn.dataset.nombre;
-        const apellido = btn.dataset.apellido;
-        const direccion = btn.dataset.direccion;
-        const telefono = btn.dataset.telefono;
-        const cursoId = btn.dataset.cursoId;
-        document.getElementById('editCedula').value = cedula;
-        document.getElementById('editNombre').value = nombre;
-        document.getElementById('editApellido').value = apellido;
-        document.getElementById('editDireccion').value = direccion || '';
-        document.getElementById('editTelefono').value = telefono || '';
-        document.getElementById('editCursoId').value = cursoId || '';
-        document.getElementById('formEditar').action = '/alumnos/editar/' + cedula;
-        new bootstrap.Modal(document.getElementById('modalEditar')).show();
-    }
-    function abrirModalEliminar(btn) {
-        const cedula = btn.dataset.cedula;
-        const nombre = btn.dataset.nombre;
-        document.getElementById('eliminarNombre').textContent = nombre;
-        document.getElementById('btnConfirmarEliminar').href = '/alumnos/eliminar/' + cedula;
-        new bootstrap.Modal(document.getElementById('modalEliminar')).show();
-    }
-    function soloNumeros(input) {
-        input.value = input.value.replace(/[^0-9]/g, '');
-    }
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        function abrirModalEditar(btn) {
+            const cedula = btn.dataset.cedula;
+            const nombre = btn.dataset.nombre;
+            const apellido = btn.dataset.apellido;
+            const direccion = btn.dataset.direccion;
+            const telefono = btn.dataset.telefono;
+            const cursoId = btn.dataset.cursoId;
+            document.getElementById('editCedula').value = cedula;
+            document.getElementById('editNombre').value = nombre;
+            document.getElementById('editApellido').value = apellido;
+            document.getElementById('editDireccion').value = direccion || '';
+            document.getElementById('editTelefono').value = telefono || '';
+            document.getElementById('editCursoId').value = cursoId || '';
+            document.getElementById('formEditar').action = '/alumnos/editar/' + cedula;
+            new bootstrap.Modal(document.getElementById('modalEditar')).show();
+        }
+        function abrirModalEliminar(btn) {
+            const cedula = btn.dataset.cedula;
+            const nombre = btn.dataset.nombre;
+            document.getElementById('eliminarNombre').textContent = nombre;
+            document.getElementById('btnConfirmarEliminar').href = '/alumnos/eliminar/' + cedula;
+            new bootstrap.Modal(document.getElementById('modalEliminar')).show();
+        }
+        function soloNumeros(input) {
+            input.value = input.value.replace(/[^0-9]/g, '');
+        }
 
-// Buscador por cédula (Lógica Actualizada)
-    document.addEventListener('DOMContentLoaded', function() {
-        const buscador = document.getElementById('buscadorCedula');
-        const tablaBody = document.querySelector('.table tbody');
-        const mensajeNoResultados = document.getElementById('filaNoCoincidencias');
+// Buscador por cédula usando la API
+document.addEventListener('DOMContentLoaded', function() {
+    const buscador = document.getElementById('buscadorCedula');
+    const tablaBody = document.querySelector('.table tbody');
 
-        buscador.addEventListener('input', function() {
-            const filtro = buscador.value.trim().toLowerCase();
-            let alumnosVisibles = 0;
+    // Guardar las filas originales para restaurarlas
+    const filasOriginales = tablaBody.innerHTML;
 
-            // Filtramos para ignorar mensajes de sistema
-            const filas = Array.from(tablaBody.querySelectorAll('tr')).filter(row =>
-                row.id !== 'filaNoCoincidencias' && !row.innerText.includes('No hay alumnos registrados')
-            );
+    let timeoutId = null;
 
-            filas.forEach(function(row) {
-                // La cédula es la primera columna (querySelector 'td' agarra el primero)
-                const cedulaCell = row.querySelector('td');
+    buscador.addEventListener('input', function() {
+        const filtro = buscador.value.trim();
 
-                if (cedulaCell) {
-                    const cedula = cedulaCell.textContent.trim().toLowerCase();
+        if (timeoutId) clearTimeout(timeoutId);
 
-                    if (filtro === '' || cedula.includes(filtro)) {
-                        row.style.display = '';
-                        alumnosVisibles++;
+        // Si el filtro está vacío, restaurar filas originales y actualizar referencia
+        if (filtro === '') {
+            tablaBody.innerHTML = filasOriginales;
+            // volver a obtener la fila de "no coincidencias" que fue recreada
+            return;
+        }
+
+        timeoutId = setTimeout(function() {
+            fetch('/api/alumnos/buscar?cedula=' + encodeURIComponent(filtro))
+                .then(response => {
+                    if (!response.ok) throw new Error('Error en la búsqueda');
+                    return response.json();
+                })
+                .then(alumnos => {
+                    // Re-obtener la fila de no coincidencias después de cualquier cambio de innerHTML
+                    let mensajeNoResultados = document.getElementById('filaNoCoincidencias');
+
+                    // Limpiar tabla excepto mensaje de no resultados
+                    const filas = tablaBody.querySelectorAll('tr:not(#filaNoCoincidencias)');
+                    filas.forEach(fila => fila.remove());
+
+                    if (alumnos.length === 0) {
+                        if (mensajeNoResultados) mensajeNoResultados.style.display = '';
                     } else {
-                        row.style.display = 'none';
+                        if (mensajeNoResultados) mensajeNoResultados.style.display = 'none';
+
+                        alumnos.forEach(alumno => {
+                            const cursoHtml = alumno.curso
+                                ? `<span class="badge badge-primary">${alumno.curso.nombre}</span>`
+                                : `<span class="badge badge-secondary">Sin asignar</span>`;
+
+                            const tr = document.createElement('tr');
+                            tr.innerHTML = `
+                                <td>${alumno.cedula}</td>
+                                <td>${alumno.nombre}</td>
+                                <td>${alumno.apellido}</td>
+                                <td>${alumno.telefono || ''}</td>
+                                <td>${cursoHtml}</td>
+                                <td>
+                                    <button class="btn-icon" title="Editar"
+                                            data-cedula="${alumno.cedula}"
+                                            data-nombre="${alumno.nombre}"
+                                            data-apellido="${alumno.apellido}"
+                                            data-direccion="${alumno.direccion || ''}"
+                                            data-telefono="${alumno.telefono || ''}"
+                                            data-curso-id="${alumno.curso ? alumno.curso.id : ''}"
+                                            onclick="abrirModalEditar(this)"><i class="bi bi-pencil-square"></i></button>
+                                    <button class="btn-icon danger" title="Eliminar"
+                                            data-cedula="${alumno.cedula}"
+                                            data-nombre="${alumno.nombre} ${alumno.apellido}"
+                                            onclick="abrirModalEliminar(this)"><i class="bi bi-trash-fill"></i></button>
+                                </td>
+                            `;
+
+                            // Si el elemento de "no coincidencias" está en el tbody, insertarlo antes.
+                            // Si no, hacer appendChild para evitar errores con referencias obsoletas.
+                            const ref = tablaBody.querySelector('#filaNoCoincidencias');
+                            if (ref && ref.parentNode === tablaBody) {
+                                tablaBody.insertBefore(tr, ref);
+                            } else {
+                                tablaBody.appendChild(tr);
+                            }
+                        });
                     }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }, 300);
+    });
+});
+    </script>
+
+    <script th:if="${modalError}">
+        document.addEventListener('DOMContentLoaded', function () {
+            var myModal = new bootstrap.Modal(document.getElementById('modalNuevo'));
+            myModal.show();
+        });
+    </script>
+
+    <script>
+        // Limpiar formulario del modal cuando se cierra
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalNuevo = document.getElementById('modalNuevo');
+            modalNuevo.addEventListener('hidden.bs.modal', function () {
+                // Si la URL es /alumnos/nuevo, redirigir a /alumnos para limpiar el estado
+                if (window.location.pathname === '/alumnos/nuevo') {
+                    window.location.href = '/alumnos';
                 }
             });
-
-            // Mostrar mensaje si filtramos y no quedó nada
-            if (alumnosVisibles === 0 && filas.length > 0) {
-                mensajeNoResultados.style.display = '';
-            } else {
-                mensajeNoResultados.style.display = 'none';
-            }
         });
-    });
-</script>
+    </script>
 
-<script th:if="${modalError}">
-    document.addEventListener('DOMContentLoaded', function () {
-        var myModal = new bootstrap.Modal(document.getElementById('modalNuevo'));
-        myModal.show();
-    });
-</script>
-
-<script>
-    // Limpiar formulario del modal cuando se cierra
-    document.addEventListener('DOMContentLoaded', function () {
-        const modalNuevo = document.getElementById('modalNuevo');
-        modalNuevo.addEventListener('hidden.bs.modal', function () {
-            // Si la URL es /alumnos/nuevo, redirigir a /alumnos para limpiar el estado
-            if (window.location.pathname === '/alumnos/nuevo') {
-                window.location.href = '/alumnos';
-            }
-        });
-    });
-</script>
-
-<!-- Logo decorativo en esquina inferior derecha -->
-<div class="corner-logo">
-    <i class="bi bi-mortarboard"></i>
-</div>
+    <!-- Logo decorativo en esquina inferior derecha -->
+    <div class="corner-logo">
+        <i class="bi bi-mortarboard"></i>
+    </div>
 </body>
 
 </html>
